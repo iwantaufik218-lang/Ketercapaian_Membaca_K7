@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KORWIL VII DARANGDAN-BOJONG | Data Ketercapaian Membaca</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #eef2f7 0%, #dce6f2 100%);
+    color: #222;
+    min-height: 100vh;
+  }
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0b3d91 0%, #1565c0 100%);
+    color: #fff;
+    padding: 20px 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .logo {
+    width: 70px; height: 70px;
+    background: #ffc107;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: bold; color: #0b3d91;
+    border: 3px solid #fff;
+  }
+  .header-text h1 { font-size: 22px; letter-spacing: 0.5px; }
+  .header-text p { font-size: 13px; opacity: 0.9; margin-top: 3px; }
+  .header-right { margin-left: auto; text-align: right; font-size: 12px; opacity: 0.9; }
+
+  /* NAVBAR */
+  nav {
+    background: #072a66;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 20px;
+    border-bottom: 3px solid #ffc107;
+  }
+  nav button {
+    background: transparent;
+    color: #fff;
+    border: none;
+    padding: 14px 22px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: 0.2s;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+  }
+  nav button:hover { background: rgba(255,255,255,0.08); }
+  nav button.active {
+    background: rgba(255,193,7,0.15);
+    border-bottom: 3px solid #ffc107;
+    color: #ffc107;
+  }
+  nav button .icon { margin-right: 6px; }
+
+  /* MAIN */
+  main { padding: 25px; max-width: 1300px; margin: 0 auto; }
+  .section { display: none; animation: fade 0.3s ease; }
+  .section.active { display: block; }
+  @keyframes fade { from {opacity:0; transform:translateY(8px);} to {opacity:1; transform:none;} }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    color: #0b3d91;
+    border-bottom: 2px solid #ffc107;
+    padding-bottom: 8px;
+    margin-bottom: 18px;
+    font-size: 18px;
+  }
+
+  /* DASHBOARD */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  .stat-box {
+    background: linear-gradient(135deg, #1565c0, #0b3d91);
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .stat-box.gold { background: linear-gradient(135deg, #ffb300, #e65100); }
+  .stat-box.green { background: linear-gradient(135deg, #2e7d32, #1b5e20); }
+  .stat-box.purple { background: linear-gradient(135deg, #6a1b9a, #4a148c); }
+  .stat-box .num { font-size: 32px; font-weight: bold; }
+  .stat-box .lbl { font-size: 13px; opacity: 0.9; margin-top: 5px; }
+
+  /* FORM */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 15px;
+  }
+  .form-group { display: flex; flex-direction: column; }
+  .form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+  }
+  .form-group input, .form-group select {
+    padding: 10px 12px;
+    border: 1.5px solid #cfd8dc;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: #1565c0;
+    box-shadow: 0 0 0 3px rgba(21,101,192,0.15);
+  }
+  .kriteria-section {
+    background: #f5f8fc;
+    border-left: 4px solid #1565c0;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+  }
+  .kriteria-section h3 {
+    color: #0b3d91;
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  .kriteria-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .kriteria-row .lbl { font-weight: 600; font-size: 13px; }
+  .kriteria-row input {
+    padding: 8px;
+    border: 1.5px solid #cfd8dc;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+  }
+  .kriteria-row .pct {
+    background: #e3f2fd;
+    padding: 8px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 600;
+    color: #0b3d91;
+    font-size: 13px;
+  }
+  .total-info {
+    margin-top: 12px;
+    padding: 12px;
+    background: #e8f5e9;
+    border-radius: 6px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .total-info.error { background: #ffebee; color: #c62828; }
+  .total-info.warn { background: #fff8e1; color: #e65100; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 11px 22px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary { background: #1565c0; color: #fff; }
+  .btn-primary:hover { background: #0b3d91; }
+  .btn-success { background: #2e7d32; color: #fff; }
+  .btn-success:hover { background: #1b5e20; }
+  .btn-danger { background: #c62828; color: #fff; }
+  .btn-danger:hover { background: #8e0000; }
+  .btn-warning { background: #f57c00; color: #fff; }
+  .btn-warning:hover { background: #e65100; }
+  .btn-secondary { background: #546e7a; color: #fff; }
+  .btn-secondary:hover { background: #37474f; }
+  .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: #fff;
+  }
+  table th {
+    background: #0b3d91;
+    color: #fff;
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid #072a66;
+  }
+  table td {
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+  }
+  table tr:nth-child(even) { background: #f5f8fc; }
+  table tr:hover { background: #e3f2fd; }
+  .red-cell { background: #ffcdd2 !important; color: #b71c1c; font-weight: bold; }
+
+  /* ALERT */
+  .alert {
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    display: none;
+  }
+  .alert.show { display: block; }
+  .alert-success { background: #e8f5e9; color: #1b5e20; border-left: 4px solid #2e7d32; }
+  .alert-error { background: #ffebee; color: #b71c1c; border-left: 4px solid #c62828; }
+  .alert-info { background: #e3f2fd; color: #0b3d91; border-left: 4px solid #1565c0; }
+
+  /* FOOTER */
+  footer {
+    background: #072a66;
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    font-size: 12px;
+    margin-top: 30px;
+  }
+
+  @media (max-width: 600px) {
+    .header { flex-direction: column; text-align: center; }
+    .header-right { margin: 0; text-align: center; }
+    nav button { padding: 10px 12px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">K7</div>
+  <div class="header-text">
+    <h1>KORWIL VII DARANGDAN-BOJONG</h1>
+    <p>Sistem Informasi Data Ketercapaian Membaca Peserta Didik</p>
+  </div>
+  <div class="header-right">
+    <div id="currentDate">-</div>
+    <div>Maksimal 60 Sekolah</div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav>
+  <button class="nav-btn active" data-target="home"><span class="icon">🏠</span>HOME</button>
+  <button class="nav-btn" data-target="input"><span class="icon">📝</span>INPUT DATA</button>
+  <button class="nav-btn" data-target="data"><span class="icon">📊</span>DATA SEKOLAH</button>
+  <button class="nav-btn" data-target="export"><span class="icon">📥</span>EXPORT EXCEL</button>
+  <button class="nav-btn" data-target="about"><span class="icon">ℹ️</span>TENTANG</button>
+  <button class="nav-btn" onclick="goBack()"><span class="icon">⬅️</span>BACK</button>
+</nav>
+
+<main>
+
+  <!-- HOME -->
+  <section id="home" class="section active">
+    <div class="card">
+      <h2>📌 Dashboard Ringkasan</h2>
+      <div class="stats">
+        <div class="stat-box"><div class="num" id="statSekolah">0</div><div class="lbl">Total Sekolah Terdata</div></div>
+        <div class="stat-box gold"><div class="num" id="statSiswa">0</div><div class="lbl">Total Siswa</div></div>
+        <div class="stat-box green"><div class="num" id="statLancar">0%</div><div class="lbl">Rata-rata Membaca Lancar</div></div>
+        <div class="stat-box purple"><div class="num" id="statBelum">0%</div><div class="lbl">Rata-rata Belum Mengenal Huruf</div></div>
+      </div>
+      <div class="alert alert-info show">
+        <strong>Selamat Datang!</strong><br>
+        Aplikasi ini digunakan untuk merekap data ketercapaian kemampuan membaca peserta didik di wilayah KORWIL VII Darangdan-Bojong. Silakan pilih menu <b>INPUT DATA</b> untuk mulai mengentri data sekolah (maksimal 60 sekolah).
+      </div>
+    </div>
+  </section>
+
+  <!-- INPUT -->
+  <section id="input" class="section">
+    <div class="card">
+      <h2>📝 Form Input Data Ketercapaian Membaca</h2>
+      <div id="inputAlert" class="alert"></div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nomor Urut</label>
+          <input type="number" id="fNo" min="1" readonly>
+        </div>
+        <div class="form-group">
+          <label>Hari / Tanggal Entri Data</label>
+          <input type="date" id="fTgl">
+        </div>
+        <div class="form-group">
+          <label>Nama Sekolah</label>
+          <input type="text" id="fSekolah" placeholder="Contoh: SDN Darangdan 01" maxlength="80">
+        </div>
+        <div class="form-group">
+          <label>Jumlah Siswa</label>
+          <input type="number" id="fJumlah" min="1" placeholder="0">
+        </div>
+      </div>
+
+      <div class="kriteria-section">
+        <h3>🎯 Kriteria Ketercapaian Membaca</h3>
+        <div class="kriteria-row" style="font-weight:bold; color:#0b3d91; font-size:12px;">
+          <div>KRITERIA</div>
+          <div style="text-align:center">JUMLAH</div>
+          <div style="text-align:center">PERSENTASE (%)</div>
+        </div>
+        <div class="kriteria-row">
+          <div class="lbl">1. Belum Mengenal Huruf</div>
+          <input type="number" class="k-input" data-key="k1" min="0" value="0">
+          <div class="pct" id="p1">0.00%</div>
+        </div>
+        <div class="kriteria-row">
+          <div class="lbl">2. Mengenal Huruf</div>
+          <input type="number" class="k-input" data-key="k2" min="0" value="0">
+          <div class="pct" id="p2">0.00%</div>
+        </div>
+        <div class="kriteria-row">
+          <div class="lbl">3. Mengeja / Membaca Suku Kata</div>
+          <input type="number" class="k-input" data-key="k3" min="0" value="0">
+          <div class="pct" id="p3">0.00%</div>
+        </div>
+        <div class="kriteria-row">
+          <div class="lbl">4. Membaca Kalimat</div>
+          <input type="number" class="k-input" data-key="k4" min="0" value="0">
+          <div class="pct" id="p4">0.00%</div>
+        </div>
+        <div class="kriteria-row">
+          <div class="lbl">5. Membaca Lancar</div>
+          <input type="number" class="k-input" data-key="k5" min="0" value="0">
+          <div class="pct" id="p5">0.00%</div>
+        </div>
+
+        <div class="total-info" id="totalInfo">
+          <span>Total Kriteria: <b id="totalK">0</b></span>
+          <span>Jumlah Siswa: <b id="totalS">0</b></span>
+          <span id="statusValidasi">Status: -</span>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-success" onclick="simpanData()">💾 SIMPAN DATA</button>
+        <button class="btn btn-secondary" onclick="resetForm()">🔄 RESET</button>
+        <button class="btn btn-primary" onclick="showSection('data')">📊 LIHAT DATA</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DATA -->
+  <section id="data" class="section">
+    <div class="card">
+      <h2>📊 Rekap Data Sekolah (<span id="jmlSekolah">0</span>/60)</h2>
+      <div class="btn-group" style="margin-bottom:15px">
+        <button class="btn btn-primary" onclick="showSection('input')">➕ TAMBAH DATA</button>
+        <button class="btn btn-success" onclick="exportExcel()">📥 EXPORT EXCEL</button>
+        <button class="btn btn-danger" onclick="hapusSemua()">🗑️ HAPUS SEMUA</button>
+      </div>
+      <div class="table-wrap">
+        <table id="tblData">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Tanggal</th>
+              <th>Nama Sekolah</th>
+              <th>Jml Siswa</th>
+              <th>Belum Mengenal Huruf</th>
+              <th>Mengenal Huruf</th>
+              <th>Mengeja/Suku Kata</th>
+              <th>Membaca Kalimat</th>
+              <th>Membaca Lancar</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPORT -->
+  <section id="export" class="section">
+    <div class="card">
+      <h2>📥 Export Data ke Excel</h2>
+      <p style="margin-bottom:15px">Unduh data ketercapaian membaca dalam format Microsoft Excel (.xlsx).</p>
+      <div class="btn-group">
+        <button class="btn btn-success" onclick="exportExcel()">📥 DOWNLOAD .XLSX</button>
+        <button class="btn btn-warning" onclick="exportCSV()">📄 DOWNLOAD .CSV</button>
+      </div>
+      <div class="alert alert-info show" style="margin-top:20px">
+        File Excel akan berisi rekap lengkap seluruh sekolah yang telah diinput beserta persentase tiap kriteria.
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="section">
+    <div class="card">
+      <h2>ℹ️ Tentang Aplikasi</h2>
+      <p style="line-height:1.7">
+        Aplikasi <b>KORWIL VII DARANGDAN-BOJONG</b> ini dirancang untuk membantu pendataan
+        dan monitoring <b>ketercapaian kemampuan membaca peserta didik</b> di wilayah kerja
+        Korwil Kecamatan Darangdan dan Bojong.
+      </p>
+      <br>
+      <p><b>Fitur Utama:</b></p>
+      <ul style="line-height:1.8; margin-left:20px; margin-top:8px">
+        <li>✅ Input data maksimal <b>60 sekolah</b></li>
+        <li>✅ Validasi otomatis: total kriteria harus sama dengan jumlah siswa</li>
+        <li>✅ Perhitungan persentase otomatis per kriteria</li>
+        <li>✅ Indikator warna <span style="color:#c62828;font-weight:bold">MERAH</span> jika total kriteria melebihi jumlah siswa</li>
+        <li>✅ Export data ke format Excel (.xlsx) dan CSV</li>
+        <li>✅ Data tersimpan otomatis di browser (localStorage)</li>
+      </ul>
+      <br>
+      <p><b>Kategori Penilaian Membaca:</b></p>
+      <ol style="line-height:1.8; margin-left:20px; margin-top:8px">
+        <li>Belum Mengenal Huruf</li>
+        <li>Mengenal Huruf</li>
+        <li>Mengeja / Membaca Suku Kata</li>
+        <li>Membaca Kalimat</li>
+        <li>Membaca Lancar</li>
+      </ol>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © 2026 KORWIL VII DARANGDAN-BOJONG | Sistem Informasi Ketercapaian Membaca
+</footer>
+
+<script>
+/* ====== DATA STORE ====== */
+let dataSekolah = JSON.parse(localStorage.getItem('korwil7_data') || '[]');
+let editIndex = -1;
+
+/* ====== NAVIGATION ====== */
+const navBtns = document.querySelectorAll('.nav-btn[data-target]');
+navBtns.forEach(btn => {
+  btn.addEventListener('click', () => showSection(btn.dataset.target));
+});
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  navBtns.forEach(b => b.classList.toggle('active', b.dataset.target === id));
+  if (id === 'data') renderTable();
+  if (id === 'home') updateDashboard();
+  if (id === 'input' && editIndex === -1) prepareNewForm();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function goBack() {
+  const active = document.querySelector('.section.active').id;
+  const order = ['home','input','data','export','about'];
+  const idx = order.indexOf(active);
+  if (idx > 0) showSection(order[idx-1]);
+  else showSection('home');
+}
+
+/* ====== INIT ====== */
+function initApp() {
+  const today = new Date();
+  document.getElementById('currentDate').textContent =
+    today.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('fTgl').valueAsDate = today;
+  prepareNewForm();
+  updateDashboard();
+
+  document.getElementById('fJumlah').addEventListener('input', hitungPersen);
+  document.querySelectorAll('.k-input').forEach(i => i.addEventListener('input', hitungPersen));
+}
+
+function prepareNewForm() {
+  editIndex = -1;
+  document.getElementById('fNo').value = dataSekolah.length + 1;
+  document.getElementById('fSekolah').value = '';
+  document.getElementById('fJumlah').value = '';
+  document.querySelectorAll('.k-input').forEach(i => i.value = 0);
+  hitungPersen();
+  hideAlert();
+}
+
+/* ====== VALIDASI & PERSENTASE ====== */
+function hitungPersen() {
+  const jmlSiswa = parseInt(document.getElementById('fJumlah').value) || 0;
+  let totalK = 0;
+  document.querySelectorAll('.k-input').forEach((inp, i) => {
+    const v = parseInt(inp.value) || 0;
+    totalK += v;
+    const pct = jmlSiswa > 0 ? (v / jmlSiswa * 100) : 0;
+    document.getElementById('p'+(i+1)).textContent = pct.toFixed(2) + '%';
+  });
+  document.getElementById('totalK').textContent = totalK;
+  document.getElementById('totalS').textContent = jmlSiswa;
+
+  const info = document.getElementById('totalInfo');
+  const status = document.getElementById('statusValidasi');
+  info.classList.remove('error','warn');
+
+  if (jmlSiswa === 0) {
+    status.textContent = 'Status: Isi jumlah siswa';
+  } else if (totalK > jmlSiswa) {
+    info.classList.add('error');
+    status.textContent = '⚠️ OVER: Total kriteria MELEBIHI jumlah siswa!';
+    document.querySelectorAll('.k-input').forEach(inp => {
+      inp.style.borderColor = '#c62828';
+      inp.style.background = '#ffebee';
+    });
+  } else if (totalK < jmlSiswa) {
+    info.classList.add('warn');
+    status.textContent = '⚠️ Total kriteria KURANG dari jumlah siswa';
+    document.querySelectorAll('.k-input').forEach(inp => {
+      inp.style.borderColor = '#f57c00';
+      inp.style.background = '#fff8e1';
+    });
+  } else {
+    status.textContent = '✅ VALID: Total kriteria = jumlah siswa';
+    document.querySelectorAll('.k-input').forEach(inp => {
+      inp.style.borderColor = '#cfd8dc';
+      inp.style.background = '#fff';
+    });
+  }
+}
+
+/* ====== SIMPAN ====== */
+function simpanData() {
+  const tgl = document.getElementById('fTgl').value;
+  const sekolah = document.getElementById('fSekolah').value.trim();
+  const jmlSiswa = parseInt(document.getElementById('fJumlah').value) || 0;
+  const k1 = parseInt(document.querySelector('[data-key=k1]').value) || 0;
+  const k2 = parseInt(document.querySelector('[data-key=k2]').value) || 0;
+  const k3 = parseInt(document.querySelector('[data-key=k3]').value) || 0;
+  const k4 = parseInt(document.querySelector('[data-key=k4]').value) || 0;
+  const k5 = parseInt(document.querySelector('[data-key=k5]').value) || 0;
+  const totalK = k1+k2+k3+k4+k5;
+
+  if (!tgl || !sekolah || jmlSiswa <= 0) {
+    showAlert('error', 'Lengkapi Tanggal, Nama Sekolah, dan Jumlah Siswa!');
+    return;
+  }
+  if (dataSekolah.length >= 60 && editIndex === -1) {
+    showAlert('error', 'Maksimal 60 sekolah sudah tercapai!');
+    return;
+  }
+  if (totalK !== jmlSiswa) {
+    showAlert('error', `Total kriteria (${totalK}) harus SAMA dengan jumlah siswa (${jmlSiswa})!`);
+    return;
+  }
+
+  const obj = {
+    tgl, sekolah, jmlSiswa, k1, k2, k3, k4, k5,
+    p1: (k1/jmlSiswa*100), p2: (k2/jmlSiswa*100),
+    p3: (k3/jmlSiswa*100), p4: (k4/jmlSiswa*100), p5: (k5/jmlSiswa*100)
+  };
+
+  if (editIndex >= 0) {
+    dataSekolah[editIndex] = obj;
+    showAlert('success', 'Data berhasil diperbarui!');
+    editIndex = -1;
+  } else {
+    dataSekolah.push(obj);
+    showAlert('success', 'Data berhasil disimpan!');
+  }
+  localStorage.setItem('korwil7_data', JSON.stringify(dataSekolah));
+  setTimeout(() => { resetForm(); updateDashboard(); }, 800);
+}
+
+function resetForm() { prepareNewForm(); }
+
+/* ====== TABEL ====== */
+function renderTable() {
+  document.getElementById('jmlSekolah').textContent = dataSekolah.length;
+  const tbody = document.querySelector('#tblData tbody');
+  tbody.innerHTML = '';
+  if (dataSekolah.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" style="padding:20px; color:#888">Belum ada data. Klik TAMBAH DATA untuk mulai.</td></tr>';
+    return;
+  }
+  dataSekolah.forEach((d, i) => {
+    const totalK = d.k1+d.k2+d.k3+d.k4+d.k5;
+    const over = totalK > d.jmlSiswa;
+    const cls = over ? 'red-cell' : '';
+    const tglFormat = new Date(d.tgl).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
+    tbody.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${tglFormat}</td>
+        <td style="text-align:left; padding-left:10px"><b>${d.sekolah}</b></td>
+        <td><b>${d.jmlSiswa}</b></td>
+        <td class="${cls}">${d.k1} <small>(${d.p1.toFixed(1)}%)</small></td>
+        <td class="${cls}">${d.k2} <small>(${d.p2.toFixed(1)}%)</small></td>
+        <td class="${cls}">${d.k3} <small>(${d.p3.toFixed(1)}%)</small></td>
+        <td class="${cls}">${d.k4} <small>(${d.p4.toFixed(1)}%)</small></td>
+        <td class="${cls}">${d.k5} <small>(${d.p5.toFixed(1)}%)</small></td>
+        <td>
+          <button class="btn btn-warning" style="padding:5px 10px; font-size:12px" onclick="editData(${i})">✏️</button>
+          <button class="btn btn-danger" style="padding:5px 10px; font-size:12px" onclick="hapusData(${i})">🗑️</button>
+        </td>
+      </tr>`;
+  });
+}
+
+function editData(i) {
+  const d = dataSekolah[i];
+  editIndex = i;
+  document.getElementById('fNo').value = i+1;
+  document.getElementById('fTgl').value = d.tgl;
+  document.getElementById('fSekolah').value = d.sekolah;
+  document.getElementById('fJumlah').value = d.jmlSiswa;
+  document.querySelector('[data-key=k1]').value = d.k1;
+  document.querySelector('[data-key=k2]').value = d.k2;
+  document.querySelector('[data-key=k3]').value = d.k3;
+  document.querySelector('[data-key=k4]').value = d.k4;
+  document.querySelector('[data-key=k5]').value = d.k5;
+  hitungPersen();
+  showSection('input');
+  showAlert('info', 'Mode EDIT aktif. Ubah data lalu klik SIMPAN.');
+}
+
+function hapusData(i) {
+  if (confirm('Hapus data sekolah "' + dataSekolah[i].sekolah + '"?')) {
+    dataSekolah.splice(i,1);
+    localStorage.setItem('korwil7_data', JSON.stringify(dataSekolah));
+    renderTable();
+    updateDashboard();
+  }
+}
+
+function hapusSemua() {
+  if (dataSekolah.length === 0) { alert('Tidak ada data.'); return; }
+  if (confirm('HAPUS SEMUA DATA? Tindakan ini tidak dapat dibatalkan!')) {
+    dataSekolah = [];
+    localStorage.setItem('korwil7_data', JSON.stringify(dataSekolah));
+    renderTable();
+    updateDashboard();
+  }
+}
+
+/* ====== DASHBOARD ====== */
+function updateDashboard() {
+  document.getElementById('statSekolah').textContent = dataSekolah.length;
+  const totalSiswa = dataSekolah.reduce((a,b) => a + b.jmlSiswa, 0);
+  document.getElementById('statSiswa').textContent = totalSiswa;
+  if (dataSekolah.length > 0) {
+    const avgLancar = dataSekolah.reduce((a,b) => a + b.p5, 0) / dataSekolah.length;
+    const avgBelum = dataSekolah.reduce((a,b) => a + b.p1, 0) / dataSekolah.length;
+    document.getElementById('statLancar').textContent = avgLancar.toFixed(1) + '%';
+    document.getElementById('statBelum').textContent = avgBelum.toFixed(1) + '%';
+  } else {
+    document.getElementById('statLancar').textContent = '0%';
+    document.getElementById('statBelum').textContent = '0%';
+  }
+}
+
+/* ====== ALERT ====== */
+function showAlert(type, msg) {
+  const a = document.getElementById('inputAlert');
+  a.className = 'alert alert-' + type + ' show';
+  a.innerHTML = msg;
+  setTimeout(() => a.classList.remove('show'), 4000);
+}
+function hideAlert() { document.getElementById('inputAlert').classList.remove('show'); }
+
+/* ====== EXPORT EXCEL ====== */
+function exportExcel() {
+  if (dataSekolah.length === 0) { alert('Belum ada data untuk diexport!'); return; }
+  const header = [
+    ['DATA KETERCAPAIAN MEMBACA PESERTA DIDIK'],
+    ['KORWIL VII DARANGDAN-BOJONG'],
+    ['Tanggal Export: ' + new Date().toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'})],
+    []
+  ];
+  const colHead = [
+    'No', 'Hari/Tanggal Entri', 'Nama Sekolah', 'Jumlah Siswa',
+    'Belum Mengenal Huruf (Jml)', 'Belum Mengenal Huruf (%)',
+    'Mengenal Huruf (Jml)', 'Mengenal Huruf (%)',
+    'Mengeja/Suku Kata (Jml)', 'Mengeja/Suku Kata (%)',
+    'Membaca Kalimat (Jml)', 'Membaca Kalimat (%)',
+    'Membaca Lancar (Jml)', 'Membaca Lancar (%)',
+    'Total Kriteria', 'Status'
+  ];
+  const rows = dataSekolah.map((d, i) => {
+    const total = d.k1+d.k2+d.k3+d.k4+d.k5;
+    const status = total === d.jmlSiswa ? 'VALID' : (total > d.jmlSiswa ? 'OVER' : 'KURANG');
+    const tglF = new Date(d.tgl).toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    return [
+      i+1, tglF, d.sekolah, d.jmlSiswa,
+      d.k1, d.p1.toFixed(2),
+      d.k2, d.p2.toFixed(2),
+      d.k3, d.p3.toFixed(2),
+      d.k4, d.p4.toFixed(2),
+      d.k5, d.p5.toFixed(2),
+      total, status
+    ];
+  });
+  const totalRow = ['','TOTAL','',
+    dataSekolah.reduce((a,b)=>a+b.jmlSiswa,0),
+    dataSekolah.reduce((a,b)=>a+b.k1,0), '',
+    dataSekolah.reduce((a,b)=>a+b.k2,0), '',
+    dataSekolah.reduce((a,b)=>a+b.k3,0), '',
+    dataSekolah.reduce((a,b)=>a+b.k4,0), '',
+    dataSekolah.reduce((a,b)=>a+b.k5,0), '',
+    '', ''
+  ];
+
+  const wsData = [...header, colHead, ...rows, totalRow];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Merge judul
+  ws['!merges'] = [
+    {s:{r:0,c:0}, e:{r:0,c:13}},
+    {s:{r:1,c:0}, e:{r:1,c:13}},
+    {s:{r:2,c:0}, e:{r:2,c:13}}
+  ];
+  // Lebar kolom
+  ws['!cols'] = [
+    {wch:5},{wch:25},{wch:30},{wch:12},
+    {wch:18},{wch:12},{wch:15},{wch:12},
+    {wch:18},{wch:12},{wch:15},{wch:12},
+    {wch:15},{wch:12},{wch:14},{wch:10}
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Ketercapaian Membaca');
+  const fname = 'Data_Ketercapaian_Membaca_KORWIL7_' + new Date().toISOString().slice(0,10) + '.xlsx';
+  XLSX.writeFile(wb, fname);
+}
+
+function exportCSV() {
+  if (dataSekolah.length === 0) { alert('Belum ada data!'); return; }
+  let csv = 'No,Tanggal,Nama Sekolah,Jumlah Siswa,Belum Mengenal Huruf (Jml),Belum Mengenal Huruf (%),Mengenal Huruf (Jml),Mengenal Huruf (%),Mengeja/Suku Kata (Jml),Mengeja/Suku Kata (%),Membaca Kalimat (Jml),Membaca Kalimat (%),Membaca Lancar (Jml),Membaca Lancar (%)\n';
+  dataSekolah.forEach((d,i) => {
+    csv += `${i+1},"${new Date(d.tgl).toLocaleDateString('id-ID')}","${d.sekolah}",${d.jmlSiswa},${d.k1},${d.p1.toFixed(2)},${d.k2},${d.p2.toFixed(2)},${d.k3},${d.p3.toFixed(2)},${d.k4},${d.p4.toFixed(2)},${d.k5},${d.p5.toFixed(2)}\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'Data_Ketercapaian_Membaca_KORWIL7.csv';
+  link.click();
+}
+
+/* START */
+initApp();
+</script>
+</body>
+</html>
